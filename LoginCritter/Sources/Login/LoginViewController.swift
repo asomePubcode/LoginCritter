@@ -54,23 +54,42 @@ public final class LoginViewController: UIViewController, UITextFieldDelegate {
     }()
 
     private lazy var loginButton: UIButton = {
-        let button = UIButton(type: .custom)
+        let button = UIButton(type: .system)
         button.backgroundColor = .light
         button.setTitle("登录", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 4
+        button.addTarget(self, action: #selector(loginButtonAction), for: .touchUpInside)
         return button
     }()
 
     private let notificationCenter: NotificationCenter = .default
 
+    var onLoginBtnClick: ((_ vc: LoginViewController, _ username: String, _ pwd: String) -> ())?
+
     deinit {
         notificationCenter.removeObserver(self)
+    }
+
+//    convenience init() {
+////        super.init()
+//    }
+
+    public convenience init(onLoginClick: @escaping (_ vc: LoginViewController, _ username: String, _ pwd: String) -> ()) {
+        self.init()
+        self.onLoginBtnClick = onLoginClick
     }
 
     override public func viewDidLoad() {
         super.viewDidLoad()
         setUpView()
+    }
+
+    @objc func loginButtonAction() {
+        guard onLoginBtnClick != nil, !emailTextField.text!.isEmpty, !passwordTextField.text!.isEmpty else {
+            return
+        }
+        onLoginBtnClick!(self, emailTextField.text!, passwordTextField.text!)
     }
 
     // MARK: - UITextFieldDelegate
