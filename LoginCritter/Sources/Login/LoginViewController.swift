@@ -23,8 +23,7 @@ private let textFieldSpacing: CGFloat = 22
 private let textFieldTopMargin: CGFloat = 38.8
 private let textFieldWidth: CGFloat = 206
 
-final public class LoginViewController: UIViewController, UITextFieldDelegate {
-    
+public final class LoginViewController: UIViewController, UITextFieldDelegate {
     private let critterView = CritterView(frame: critterViewFrame)
 
     private lazy var emailTextField: UITextField = {
@@ -54,18 +53,28 @@ final public class LoginViewController: UIViewController, UITextFieldDelegate {
         return button
     }()
 
+    private lazy var loginButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.backgroundColor = .light
+        button.setTitle("登录", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 4
+        return button
+    }()
+
     private let notificationCenter: NotificationCenter = .default
 
     deinit {
         notificationCenter.removeObserver(self)
     }
-    
+
     override public func viewDidLoad() {
         super.viewDidLoad()
         setUpView()
     }
 
     // MARK: - UITextFieldDelegate
+
     public func textFieldDidBeginEditing(_ textField: UITextField) {
         let deadlineTime = DispatchTime.now() + .milliseconds(100)
 
@@ -83,7 +92,7 @@ final public class LoginViewController: UIViewController, UITextFieldDelegate {
             }
         }
     }
-    
+
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == emailTextField {
             passwordTextField.becomeFirstResponder()
@@ -94,7 +103,7 @@ final public class LoginViewController: UIViewController, UITextFieldDelegate {
         }
         return true
     }
-    
+
     public func textFieldDidEndEditing(_ textField: UITextField) {
         if textField == emailTextField {
             critterView.stopHeadRotation()
@@ -126,10 +135,21 @@ final public class LoginViewController: UIViewController, UITextFieldDelegate {
         view.addSubview(passwordTextField)
         setUpPasswordTextFieldConstraints()
 
+        view.addSubview(loginButton)
+        setUpLoginButtonConstraints()
+
         setUpGestures()
         setUpNotification()
 
         debug_setUpDebugUI()
+    }
+
+    private func setUpLoginButtonConstraints() {
+        loginButton.translatesAutoresizingMaskIntoConstraints = false
+        loginButton.heightAnchor.constraint(equalToConstant: 46).isActive = true
+        loginButton.widthAnchor.constraint(equalToConstant: 255).isActive = true
+        loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        loginButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: critterViewTopMargin).isActive = true
     }
 
     private func setUpCritterViewConstraints() {
@@ -159,7 +179,7 @@ final public class LoginViewController: UIViewController, UITextFieldDelegate {
     private func fractionComplete(for textField: UITextField) -> Float {
         guard let text = textField.text, let font = textField.font else { return 0 }
         let textFieldWidth = textField.bounds.width - (2 * textFieldHorizontalMargin)
-        return min(Float(text.size(withAttributes: [NSAttributedString.Key.font : font]).width / textFieldWidth), 1)
+        return min(Float(text.size(withAttributes: [NSAttributedString.Key.font: font]).width / textFieldWidth), 1)
     }
 
     private func stopHeadRotation() {
@@ -198,9 +218,9 @@ final public class LoginViewController: UIViewController, UITextFieldDelegate {
         view.font = UIFont(name: "HelveticaNeue-Medium", size: 15)
         view.textColor = .text
 
-        let attributes: [NSAttributedString.Key : Any] = [
+        let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.disabledText,
-            .font : view.font!
+            .font: view.font!
         ]
 
         view.attributedPlaceholder = NSAttributedString(string: text, attributes: attributes)
